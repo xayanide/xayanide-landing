@@ -54,11 +54,11 @@
   let httpsResultsCount = 0;
   let httpResultsCount = 0;
 
-  const filteredLinks = (links, search) =>
+  const searchResults = (links, search) =>
     links.filter(link => link.hostname.toLowerCase().includes(search.toLowerCase()));
 
-  const formatResultText = (count) => count === 1 ? 'result' : 'results';
-  const formatHostNameText = (count) => count === 1 ? 'hostname' : 'hostnames';
+  const formatResultText = (count) => count > 1 ? 'results' : 'result';
+  const formatHostNameText = (count) => count > 1 ? 'hostnames' : 'hostname';
 
   onMount(async () => {
     await fetchSiteData();
@@ -66,12 +66,12 @@
     httpsCount = httpsLinks.length;
     httpCount = httpLinks.length;
     totalCount = httpsCount + httpCount;
-    httpsResultsCount = filteredLinks(httpsLinks, httpsSearch).length;
-    httpResultsCount = filteredLinks(httpLinks, httpSearch).length;
+    httpsResultsCount = searchResults(httpsLinks, httpsSearch).length;
+    httpResultsCount = searchResults(httpLinks, httpSearch).length;
   });
 
-  $: filteredHttpsLinks = filteredLinks(httpsLinks, httpsSearch);
-  $: filteredHttpLinks = filteredLinks(httpLinks, httpSearch);
+  $: httpsHostNamesResults = searchResults(httpsLinks, httpsSearch);
+  $: httpHostNamesResults = searchResults(httpLinks, httpSearch);
 </script>
 <svelte:head>
   <title>Xayanide - Find Me</title>
@@ -97,17 +97,17 @@
         <h2 class="text-xl font-semibold mb-2">HTTPS</h2>
         <input 
           type="text" 
-          placeholder="Search for {formatHostNameText(filteredHttpsLinks.length)}..." 
+          placeholder="Search for {formatHostNameText(httpsHostNamesResults.length)}..." 
           bind:value={httpsSearch} 
           class="w-full p-2 border border-gray-300 rounded-md mb-4"
         />
         <p class="text-gray-600">
-          Found {filteredHttpsLinks.length} {formatResultText(filteredHttpsLinks.length)}
+          Found {httpsHostNamesResults.length} {formatResultText(httpsHostNamesResults.length)}
         </p>
       </div>
       <!-- Fixed Height Result Container -->
       <div class="flex-1 overflow-y-auto p-2" style="max-height: 400px;">
-        {#each filteredHttpsLinks as { link, hostname, faviconUrl }}
+        {#each httpsHostNamesResults as { link, hostname, faviconUrl }}
           <a 
             href={link} 
             class="block p-4 mb-2 text-blue-600 hover:bg-gray-100 border border-gray-300 rounded-md transition-colors"
@@ -126,17 +126,17 @@
         <h2 class="text-xl font-semibold mb-2">HTTP</h2>
         <input 
           type="text" 
-          placeholder="Search for {formatHostNameText(filteredHttpLinks.length)}..." 
+          placeholder="Search for {formatHostNameText(httpHostNamesResults.length)}..." 
           bind:value={httpSearch} 
           class="w-full p-2 border border-gray-300 rounded-md mb-4"
         />
         <p class="text-gray-600">
-          Found {filteredHttpLinks.length} {formatResultText(filteredHttpLinks.length)}
+          Found {httpHostNamesResults.length} {formatResultText(httpHostNamesResults.length)}
         </p>
       </div>
       <!-- Fixed Height Result Container -->
       <div class="flex-1 overflow-y-auto p-2" style="max-height: 400px;">
-        {#each filteredHttpLinks as { link, hostname, faviconUrl }}
+        {#each httpHostNamesResults as { link, hostname, faviconUrl }}
           <a 
             href={link} 
             class="block p-4 mb-2 text-blue-600 hover:bg-gray-100 border border-gray-300 rounded-md transition-colors"
