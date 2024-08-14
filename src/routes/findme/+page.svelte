@@ -38,7 +38,6 @@
       };
     });
     const websites = await Promise.all(promises);
-    console.log(websites)
     httpsLinks = websites.filter(website => website.protocol.startsWith("https"));
     httpLinks = websites.filter(website => website.protocol.startsWith("http") && !website.protocol.startsWith('https'));
     httpsLinks.sort((a, b) => a.hostname.localeCompare(b.hostname));
