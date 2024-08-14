@@ -28,9 +28,6 @@ a{
     text-decoration:underline;
     transition:none
 }
-a[onclick]:not([href]){
-    cursor:pointer
-}
 #wrapper{
     -webkit-overflow-scrolling:touch;
     align-items:center;
@@ -145,9 +142,6 @@ p{
 }
 #text02 a{
     text-decoration:none
-}
-#text02 span.p:nth-child(n+2){
-    margin-top:1rem
 }
 #divider04{
     align-items:center;
@@ -314,6 +308,11 @@ p{
                                 find me here :)
                             </a>
                       </p>
+                      <div class="flex justify-center items-center">
+                        <a id="mynickname-cert" class="text-center" href="https://mynickname.com/xayanide">
+                          <img src="https://mynickname.com/forum6t8/xayanide.gif" alt="Certificate for nickname xayanide, is registered to: https://xayanide.pages.dev" />
+                        </a>
+                    </div>
                       <hr id="divider04">
                   </div>
               </div>
