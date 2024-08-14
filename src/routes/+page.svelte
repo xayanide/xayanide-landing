@@ -321,7 +321,7 @@ p{
           <div id="credits" class="icc-credits">
             <span><a href="https://carrd.co/dashboard/add">Was Made with Carrd</a></span>
           <br>
-            <span><a href="https://kit.svelte.dev">Now Built with SvelteKit</a></span>
+            <span><a href="https://kit.svelte.dev">Now Remade with SvelteKit</a></span>
         </div>
       </div>
   </div>
