@@ -13,24 +13,22 @@
 
   const fetchSiteData = async () => {
     const promises = handles.links.map(async (linkData) => {
-      const url = linkData.url;
-      const hostname = new URL(url).hostname;
+      const linkUrl = linkData.url;
+      const url = new URL(linkUrl);
       return {
-        link: url,
-        hostname: hostname.replace(/^www\./, ''),
+        protocol: url.protocol,
+        link: linkUrl,
+        hostname: url.hostname.replace(/^www\./, ''),
         metadata: linkData.metadata,
-        faviconUrl: getFaviconUrl(hostname)
+        faviconUrl: getFaviconUrl(url.hostname)
       };
     });
-
     const websites = await Promise.all(promises);
-
-    httpsLinks = websites.filter(website => website.link.startsWith('https'));
-    httpLinks = websites.filter(website => website.link.startsWith('http') && !website.link.startsWith('https'));
-
+    console.log(websites)
+    httpsLinks = websites.filter(website => website.protocol.startsWith("https"));
+    httpLinks = websites.filter(website => website.protocol.startsWith("http") && !website.protocol.startsWith('https'));
     httpsLinks.sort((a, b) => a.hostname.localeCompare(b.hostname));
     httpLinks.sort((a, b) => a.hostname.localeCompare(b.hostname));
-
     lastAddedLinkDate = handles.links
       .map(link => link.metadata['link-date-added'])
       .sort((a, b) => new Date(b) - new Date(a))[0];
@@ -47,7 +45,6 @@
 
   const formatResultText = (count) => count === 1 ? 'result' : 'results';
   const formatHostNameText = (count) => count === 1 ? 'hostname' : 'hostnames';
-
 
   onMount(async () => {
     await fetchSiteData();
@@ -95,7 +92,8 @@
           Found {filteredHttpsLinks.length} {formatResultText(filteredHttpsLinks.length)}
         </p>
       </div>
-      <div class="flex-1 overflow-y-auto p-2">
+      <!-- Fixed Height Result Container -->
+      <div class="flex-1 overflow-y-auto p-2" style="max-height: 400px;">
         {#each filteredHttpsLinks as { link, hostname, faviconUrl }}
           <a 
             href={link} 
@@ -123,7 +121,8 @@
           Found {filteredHttpLinks.length} {formatResultText(filteredHttpLinks.length)}
         </p>
       </div>
-      <div class="flex-1 overflow-y-auto p-2">
+      <!-- Fixed Height Result Container -->
+      <div class="flex-1 overflow-y-auto p-2" style="max-height: 400px;">
         {#each filteredHttpLinks as { link, hostname, faviconUrl }}
           <a 
             href={link} 
