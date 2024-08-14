@@ -307,11 +307,11 @@ p{
                       <h1 id="text01">Xayanide</h1>
                       <p id="text02">
                           <a id="discord-invite" href="https://discord.com/invite/8SevbgGrar" target="_blank">
-                                my personal discord server.
+                                my personal discord server here
                           </a>
                           <p id="text02">
                             <a id="discord-invite" href="{base}/findme">
-                                find me :)
+                                find me here :)
                             </a>
                       </p>
                       <hr id="divider04">
