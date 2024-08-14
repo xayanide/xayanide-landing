@@ -310,7 +310,7 @@ p{
                                 my personal discord server.
                           </a>
                           <p id="text02">
-                            <a id="discord-invite" href="{base}/findme" target="_blank">
+                            <a id="discord-invite" href="{base}/findme">
                                 find me :)
                             </a>
                       </p>
