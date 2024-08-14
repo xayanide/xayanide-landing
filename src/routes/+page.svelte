@@ -289,6 +289,10 @@ p{
 }
 
 </style>
+<svelte:head>
+	<title>Xayanide - Home</title>
+	<meta name="description" content="Xayanide's Home" />
+</svelte:head>
 <div id="wrapper" class="bg-black">
   <div id="main">
       <div class="inner">
