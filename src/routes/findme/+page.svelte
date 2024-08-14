@@ -9,18 +9,32 @@
   let httpSearch = '';
   let lastAddedLinkDate = "Loading...";
 
+  const defaultFaviconUrl = `${base}/no-favicon.ico`; // Path to your default favicon
+
   const getFaviconUrl = (hostname) => `https://favicone.com/${hostname}?s=32`;
+
+  // Function to fetch favicon and fallback to default
+  const fetchFavicon = async (url) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => resolve(url);
+      img.onerror = () => resolve(defaultFaviconUrl);
+    });
+  };
 
   const fetchSiteData = async () => {
     const promises = handles.links.map(async (linkData) => {
       const linkUrl = linkData.url;
       const url = new URL(linkUrl);
+      const faviconUrl = getFaviconUrl(url.hostname);
+      const actualFaviconUrl = await fetchFavicon(faviconUrl);
       return {
         protocol: url.protocol,
         link: linkUrl,
         hostname: url.hostname.replace(/^www\./, ''),
         metadata: linkData.metadata,
-        faviconUrl: getFaviconUrl(url.hostname)
+        faviconUrl: actualFaviconUrl
       };
     });
     const websites = await Promise.all(promises);
@@ -34,11 +48,11 @@
       .sort((a, b) => new Date(b) - new Date(a))[0];
   };
 
-  let httpsCount = "Loading...";
-  let httpCount = "Loading...";
-  let totalCount = "Loading...";
-  let httpsResultsCount = "Loading...";
-  let httpResultsCount = "Loading...";
+  let httpsCount = 0;
+  let httpCount = 0;
+  let totalCount = 0;
+  let httpsResultsCount = 0;
+  let httpResultsCount = 0;
 
   const filteredLinks = (links, search) =>
     links.filter(link => link.hostname.toLowerCase().includes(search.toLowerCase()));
@@ -59,7 +73,6 @@
   $: filteredHttpsLinks = filteredLinks(httpsLinks, httpsSearch);
   $: filteredHttpLinks = filteredLinks(httpLinks, httpSearch);
 </script>
-
 <svelte:head>
   <title>Xayanide - Find Me</title>
   <meta name="description" content="Find Xayanide here" />
