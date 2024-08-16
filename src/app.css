@@ -5,29 +5,3 @@
 #prevent-element-injection-bug {
 	display: contents;
 }
-
-html{
-    margin:0;
-    padding:0;
-    border:0;
-    font-size:100%;
-    font:inherit;
-    vertical-align:baseline;
-    font-size:24pt
-}
-body{
-    margin:0;
-    padding:0;
-    border:0;
-    font-size:100%;
-    font:inherit;
-    vertical-align:baseline;
-    line-height:1;
-    -webkit-text-size-adjust:none;
-	line-height:1;
-    min-height:var(--viewport-height);
-    min-width:320px;
-    overflow-x:hidden;
-    word-wrap:break-word;
-    background-color:#000
-}
