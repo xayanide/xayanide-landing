@@ -3,8 +3,8 @@
  * rebuilt from the chunks of the original image scattered by GridFS.
  * @param chunks The chunks of file's data retrieved from the database.
  * @param type The type of the image, to make sure the image is properly interpreted.
- * @returns An URL leading to the image.
+ * @returns A URL leading to the image.
  */
-export default function imageChunksToURL(chunks, type) {
+export default function fileChunksToURL(chunks, type) {
   return URL.createObjectURL(new Blob(chunks.map(p => new Uint8Array(p.data)), { type }));
 }

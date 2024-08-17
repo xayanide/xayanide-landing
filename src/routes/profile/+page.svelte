@@ -1,6 +1,6 @@
 <script>
 	import { enhance } from "$app/forms";
-	import imageChunksToURL from "$lib/imageChunksToURL";
+	import fileChunksToURL from "$lib/fileChunksToURL";
   
   export let data; // the data returned by the `load` function of `./+page.server.ts`
 
@@ -42,7 +42,7 @@
 
     if (res.ok) {
       const { data, type } = await res.json();
-      return imageChunksToURL(data, type);
+      return fileChunksToURL(data, type);
     } else {
       throw new Error(await res.text());
     }

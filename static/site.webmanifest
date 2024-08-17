@@ -1,7 +1,7 @@
 {
-    "name": "Xayanide",
-    "short_name": "Xayanide",
-	"description": "Official landing page for Xayanide",
+    "name": "xayanide",
+    "short_name": "xayanide",
+	"description": "xayanide's website",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
