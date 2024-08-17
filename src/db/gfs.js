@@ -1,110 +1,114 @@
-import { GridFSBucket, ObjectId } from "mongodb";
-
-// Useful link: https://www.mongodb.com/docs/drivers/node/v3.6/fundamentals/gridfs/
+import { GridFSBucket, ObjectId } from 'mongodb';
 
 /**
- * Uploads a file using GridFS.
- * @param filename The name of the file.
- * @param data Its data as a Blob.
- * @param db The database instance.
- * @param options Options including custom bucket name and file's metadata.
- * @returns The Object ID of the document storing the file.
+ * Uploads a file to GridFS.
+ * @param {string} filename - The name of the file to upload.
+ * @param {Blob} data - The data of the file as a Blob.
+ * @param {object} db - The MongoDB database instance.
+ * @param {object} [options] - Options for the upload operation.
+ *   - {string} [options.bucketName='fs'] - The name of the GridFS bucket.
+ *   - {object} [options.metadata] - Metadata associated with the file.
+ * @returns {Promise<string>} - A promise that resolves to the Object ID of the document storing the file.
  */
-export async function uploadFile(filename, data, db, options) {
-  const buffer = Buffer.from(new Uint8Array(await data.arrayBuffer())); // ArrayBuffer -> Uint8Array -> Buffer
+export async function uploadFile(filename, data, db, options = {}) {
+  const buffer = Buffer.from(new Uint8Array(await data.arrayBuffer()));
+  const bucketName = options.bucketName || 'fs';
+  const gfs = new GridFSBucket(db, { bucketName });
+
   return new Promise((resolve, reject) => {
-    const gfs = new GridFSBucket(db, { bucketName: options?.bucketName ?? "fs" });
-    const stream = gfs.openUploadStream(filename, { metadata: { ...options?.metadata } });
-    stream.write(buffer);
-    stream.on("error", reject);
-    stream.end((_, file) => {
-      if (file) {
-        resolve(file._id.toString());
-      }
-    });
+    const uploadStream = gfs.openUploadStream(filename, { metadata: options.metadata });
+
+    uploadStream.on('error', reject);
+    uploadStream.on('finish', () => resolve(uploadStream.id.toString()));
+
+    uploadStream.write(buffer);
+    uploadStream.end();
   });
 }
 
 /**
- * Gets an uploaded file from the database according to its unique ID.
- * This method returns the chunks of the file.
- * Indeed, MongoDB scatters the file into chunks of around 255KB each.
- * The chunks are stored within the collection entitled "fs.chunks",
- * and the reference to each file is stored in the "fs.files" collection.
- * @param fileId The Object ID of the file.
- * @param db The database instance.
- * @param bucketName The name of the bucket.
- * @returns The list of chunks as buffers.
+ * Downloads a file from GridFS by its Object ID.
+ * @param {string|ObjectId} fileId - The Object ID of the file.
+ * @param {object} db - The MongoDB database instance.
+ * @param {string} [bucketName='fs'] - The name of the GridFS bucket.
+ * @returns {Promise<Buffer[]>} - A promise that resolves to an array of buffers containing the file chunks.
  */
-export async function downloadFile(fileId, db, bucketName) {
+export async function downloadFile(fileId, db, bucketName = 'fs') {
+  const gfs = new GridFSBucket(db, { bucketName });
+  const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
+
   return new Promise((resolve, reject) => {
-    const gfs = new GridFSBucket(db, { bucketName: bucketName ?? "fs" });
-    // To get a file according to its name instead of its ID,
-    // use the method : `openDownloadStreamByName`.
-    const stream = gfs.openDownloadStream(typeof fileId === "string" ? new ObjectId(fileId) : fileId);
+    const downloadStream = gfs.openDownloadStream(objectId);
     const chunks = [];
-    stream.start();
-    stream.on("data", (chunk) => chunks.push(chunk));
-    stream.on("end", () => resolve(chunks));
-    stream.on("error", reject);
-    stream.end();
+
+    downloadStream.on('data', chunk => chunks.push(chunk));
+    downloadStream.on('end', () => resolve(chunks));
+    downloadStream.on('error', reject);
   });
 }
 
 /**
- * Gets info on files.
- * @param filter The filter conditions.
- * @param db The database instance.
- * @param options The options of the filter.
- * @param bucketName The name of the bucket.
- * @returns The collection(s) associated with the file(s) that satisfy the filter.
+ * Finds files in GridFS based on the filter criteria.
+ * @param {object} [filter={}] - The filter conditions.
+ * @param {object} db - The MongoDB database instance.
+ * @param {object} [options={}] - The options for the find operation.
+ * @param {string} [bucketName='fs'] - The name of the GridFS bucket.
+ * @returns {Promise<object[]>} - A promise that resolves to an array of file metadata documents.
  */
-export async function findUploadedFile(filter = {}, db, options, bucketName) {
-  return await new GridFSBucket(db, { bucketName: bucketName ?? "fs" }).find(filter, options).toArray();
+export async function findUploadedFile(filter = {}, db, options = {}, bucketName = 'fs') {
+  const gfs = new GridFSBucket(db, { bucketName });
+  const cursor = gfs.find(filter, options);
+  return cursor.toArray();
 }
 
 /**
- * Deletes a file.
- * @param fileId The Object ID of the file.
- * @param db The instance of the database.
- * @param bucketName The name of the bucket, by default "fs".
+ * Deletes a file from GridFS by its Object ID.
+ * @param {string|ObjectId} fileId - The Object ID of the file.
+ * @param {object} db - The MongoDB database instance.
+ * @param {string} [bucketName='fs'] - The name of the GridFS bucket.
+ * @returns {Promise<void>}
  */
-export async function deleteFile(fileId, db, bucketName) {
-  await new GridFSBucket(db, { bucketName: bucketName ?? "fs" }).delete(typeof fileId === "string" ? new ObjectId(fileId) : fileId);
+export async function deleteFile(fileId, db, bucketName = 'fs') {
+  const gfs = new GridFSBucket(db, { bucketName });
+  const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
+  await gfs.delete(objectId);
 }
 
 /**
- * Deletes the file of the given ID in order to replace it with another one.
- * Given the file ID, the function assumes the file exists and won't verify that.
- * @param fileId The Object ID of the file.
- * @param filename The name of the file (its given name on upload. Not necessarily the name the user gave to his file).
- * @param data The raw data of the file to upload, as a Blob.
- * @param db The database instance.
- * @param options Options related to the upload.
- * @returns The Object ID of the document storing the file.
+ * Replaces a file in GridFS by deleting the existing file and uploading a new one.
+ * @param {string|ObjectId} fileId - The Object ID of the file to be replaced.
+ * @param {string} filename - The name of the new file to upload.
+ * @param {Blob} data - The data of the new file as a Blob.
+ * @param {object} db - The MongoDB database instance.
+ * @param {object} [options={}] - Options for the upload operation.
+ * @returns {Promise<string>} - A promise that resolves to the Object ID of the new file.
  */
-export async function replaceFile(fileId, filename, data, db, options) {
-  await deleteFile(fileId, db, options?.bucketName ?? "fs");
-  return await uploadFile(filename, data, db, options);
+export async function replaceFile(fileId, filename, data, db, options = {}) {
+  await deleteFile(fileId, db, options.bucketName);
+  return uploadFile(filename, data, db, options);
 }
 
 /**
- * Renames a file.
- * @param fileId The Object ID of the file.
- * @param newName The new name of the file.
- * @param db The database instance.
- * @param bucketName The name of the bucket, by default "fs".
+ * Renames a file in GridFS by updating its filename.
+ * @param {string|ObjectId} fileId - The Object ID of the file.
+ * @param {string} newName - The new name for the file.
+ * @param {object} db - The MongoDB database instance.
+ * @param {string} [bucketName='fs'] - The name of the GridFS bucket.
+ * @returns {Promise<void>}
  */
-export async function renameFile(fileId, newName, db, bucketName) {
-  await new GridFSBucket(db, { bucketName: bucketName ?? "fs" }).rename(typeof fileId === "string" ? new ObjectId(fileId) : fileId, newName);
+export async function renameFile(fileId, newName, db, bucketName = 'fs') {
+  const gfs = new GridFSBucket(db, { bucketName });
+  const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
+  await gfs.rename(objectId, newName);
 }
 
-
 /**
- * Deletes every files of the specified bucket along with their documents in the specified database.
- * @param bucketName The name of the bucket.
- * @param db The database instance.
+ * Deletes all files and their metadata in a GridFS bucket.
+ * @param {string} bucketName - The name of the GridFS bucket.
+ * @param {object} db - The MongoDB database instance.
+ * @returns {Promise<void>}
  */
 export async function deleteBucket(bucketName, db) {
-  await new GridFSBucket(db, { bucketName }).drop();
+  const gfs = new GridFSBucket(db, { bucketName });
+  await gfs.drop();
 }

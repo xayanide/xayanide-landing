@@ -17,7 +17,7 @@ export const POST = async ({ request }) => {
   }
 
   try {
-    const imageDocuments = await findUploadedFile({ _id: new ObjectId(fileId) }, db, undefined, bucketName);
+    const imageDocuments = await findUploadedFile({ _id: ObjectId.createFromHexString(fileId) }, db, undefined, bucketName);
     const imageDocument = imageDocuments[0];
 
     if (!imageDocument) {

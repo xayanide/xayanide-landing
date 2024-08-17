@@ -1,32 +1,31 @@
 <script>
 	import { fade, fly } from 'svelte/transition';
+    import { base } from '$app/paths';
 
 	export let elapsed = 0;
 </script>
 
-<div class="transition-enforcement bg-zptx-dark min-w-screen min-h-screen flex justify-center items-center font-mono text-2xl *:justify-self-center *:animate-pulse">
+<div class="transition-enforcement bg-black min-w-screen min-h-screen flex justify-center items-center font-mono text-2xl text-white *:justify-self-center *:animate-pulse">
 	{#if elapsed > 12000}
 		<p in:fade={{ delay: 250 }} out:fade>
-			something's not right...
+			(4) something's wrong...
 		</p>
 		{#if elapsed > 15000}
 			<div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex justify-center gap-2 !animate-none text-xl">
-				<a href="https://status.zptx.dev" class="transition hover:text-white" in:fly={{ y: '20%' }} out:fade>system status</a>
-				<p class="text-slate-600" in:fly={{ y: '20%' }} out:fade>/</p>
-				<a href="https://go.zptx.dev/discord" class="transition hover:text-white" in:fly={{ y: '20%' }} out:fade>let us know</a>
+				<a href="{base}/" class="transition hover:text-white" in:fly={{ y: '20%' }} out:fade>go back home</a>
 			</div>
 		{/if}
 	{:else if elapsed > 7000}
 		<p in:fade={{ delay: 250 }} out:fade>
-			still loading...
+			(3) taking longer than expected hehehe...
 		</p>
 	{:else if elapsed > 3000}
 		<p in:fade={{ delay: 250 }} out:fade>
-			this is taking longer than expected
+			(2) meh...
 		</p>
 	{:else}
 		<p in:fade={{ delay: 100 }} out:fade>
-			one moment please
+			(1) please wait...
 		</p>
 	{/if}
 </div>
