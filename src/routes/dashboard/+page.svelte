@@ -83,7 +83,7 @@
 			const newEntry = {
 				url: newLink,
 				metadata: {
-					'link-date-added': new Date().toString(),
+					'link-date-added': new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }),
 					'link-index': updatedJson.links.length > 0 ? updatedJson.links.length + 1 : 1
 				}
 			};

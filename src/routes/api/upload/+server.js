@@ -6,7 +6,7 @@ export const POST = async ({ request }) => {
 	const formData = await request.formData();
 	const file = formData.get('jsonfile');
 	const jsonData = JSON.parse(await file.text());
-	jsonData['upload_date'] = new Date().toString();
+	jsonData['upload_date'] = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' });
 	try {
 		const db = (await mongoClient).db(DATABASE_NAME);
 		const collection = db.collection('jsondata');
