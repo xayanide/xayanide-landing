@@ -64,7 +64,9 @@ const updateLinks = async () => {
 	const newEntry = {
 		url: newLink,
 		metadata: {
-			'link-date-added': new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }),
+			'link-date-added': new Date(
+				new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' })
+			).toString(),
 			'link-index': data.links.length > 0 ? data.links.length + 1 : 1
 		}
 	};
