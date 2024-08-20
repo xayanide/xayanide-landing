@@ -27,7 +27,6 @@
 		<p in:fade={{ delay: 100 }} out:fade>(1) please wait...</p>
 	{/if}
 
-	<!-- Rotating Logo -->
 	<div class="logo-container">
 		<img src="{base}/android-chrome-512x512.png" alt="Loading logo" class="loading-logo" />
 	</div>
