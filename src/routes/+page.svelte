@@ -47,8 +47,8 @@
 </script>
 
 <svelte:head>
-	<title>Xayanide - Home</title>
-	<meta name="description" content="Xayanide's Home" />
+	<title>xayanide - Home</title>
+	<meta name="description" content="xayanide's Home" />
 </svelte:head>
 {#await createAndResolvePromises()}
 	<Loading {elapsed} />
@@ -60,7 +60,7 @@
 					<div>
 						<div>
 							<a href="https://imgur.com/rHpy1VZ" target="_blank">
-								<img src={logo} alt="Xayanide Logo" />
+								<img src={logo} alt="xayanide Logo" />
 							</a>
 						</div>
 						<h1>Xayanide</h1>
@@ -70,7 +70,7 @@
 							</a>
 						</p>
 						<p>
-							<a href="{base}/findme"> find me here :) </a>
+							<a href="{base}/findme">find me here :) </a>
 						</p>
 						<div>
 							<a href="https://mynickname.com/xayanide">

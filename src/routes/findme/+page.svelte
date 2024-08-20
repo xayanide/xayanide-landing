@@ -74,7 +74,7 @@
 </script>
 
 <svelte:head>
-	<title>xayanide - Find me</title>
+	<title>xayanide - find me</title>
 	<meta name="description" content="Try to find xayanide here" />
 </svelte:head>
 

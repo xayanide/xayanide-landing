@@ -116,7 +116,9 @@
 		reset();
 	});
 </script>
-
+<svelte:head>
+	<title>xayanide - dashboard</title>
+</svelte:head>
 {#if loading}
 	<Loading {elapsed} />
 {:else}

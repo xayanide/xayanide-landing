@@ -49,7 +49,9 @@
 	// Access the VITE_REGISTER_ENABLED environment variable
 	const isRegisterEnabled = import.meta.env.VITE_REGISTER_ENABLED === 'true';
 </script>
-
+<svelte:head>
+	<title>xayanide - auth</title>
+</svelte:head>
 {#if loading}
 	<Loading {elapsed} />
 {:else if data.userId && !isConnected}

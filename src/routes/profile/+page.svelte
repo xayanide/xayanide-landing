@@ -95,7 +95,9 @@
 		}
 	});
 </script>
-
+<svelte:head>
+	<title>xayanide - profile</title>
+</svelte:head>
 {#if loading}
 	<Loading {elapsed} />
 {:else}
