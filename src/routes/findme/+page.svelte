@@ -33,7 +33,7 @@
 				link: linkData.url,
 				hostname: url.hostname.replace(/^www\./, ''),
 				metadata: linkData.metadata,
-				faviconUrl,
+				faviconUrl
 			};
 		});
 	}
@@ -52,7 +52,9 @@
 		try {
 			const websites = await Promise.all(await fetchSitesData());
 			httpsLinks = websites.filter(({ protocol }) => protocol.startsWith('https'));
-			httpLinks = websites.filter(({ protocol }) => protocol.startsWith('http') && !protocol.startsWith('https'));
+			httpLinks = websites.filter(
+				({ protocol }) => protocol.startsWith('http') && !protocol.startsWith('https')
+			);
 			httpsLinks.sort((a, b) => a.hostname.localeCompare(b.hostname));
 			httpLinks.sort((a, b) => a.hostname.localeCompare(b.hostname));
 			lastAddedLinkDate = websites
@@ -108,12 +110,15 @@
 					<h2 class="text-xl font-semibold mb-2">HTTPS</h2>
 					<input
 						type="text"
-						placeholder="Search for {httpsHostNamesResults.length > 1 ? 'hostnames' : 'hostname'}..."
+						placeholder="Search for {httpsHostNamesResults.length > 1
+							? 'hostnames'
+							: 'hostname'}..."
 						bind:value={httpsSearch}
 						class="w-full p-2 border border-gray-300 rounded-md mb-4"
 					/>
 					<p class="text-gray-600">
-						Found {httpsHostNamesResults.length} {httpsHostNamesResults.length > 1 ? 'results' : 'result'}
+						Found {httpsHostNamesResults.length}
+						{httpsHostNamesResults.length > 1 ? 'results' : 'result'}
 					</p>
 				</div>
 				<!-- Fixed Height Result Container -->
@@ -142,7 +147,8 @@
 						class="w-full p-2 border border-gray-300 rounded-md mb-4"
 					/>
 					<p class="text-gray-600">
-						Found {httpHostNamesResults.length} {httpHostNamesResults.length > 1 ? 'results' : 'result'}
+						Found {httpHostNamesResults.length}
+						{httpHostNamesResults.length > 1 ? 'results' : 'result'}
 					</p>
 				</div>
 				<!-- Fixed Height Result Container -->

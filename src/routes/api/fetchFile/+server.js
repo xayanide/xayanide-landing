@@ -2,7 +2,7 @@ import { downloadFile, findUploadedFile } from '../../../db/gfs';
 import { DATABASE_NAME } from '$env/static/private';
 import { json } from '@sveltejs/kit';
 import { ObjectId } from 'mongodb';
-import mongoClient from '../../../db/gfs';
+import mongoClient from '../../../db/mongo';
 
 // A request to get the raw data of a file.
 // This request accepts two properties:

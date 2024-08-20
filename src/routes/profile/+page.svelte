@@ -6,18 +6,18 @@
 	import { onMount } from 'svelte';
 
 	const startTime = Date.now();
-	$: elapsed = Date.now() - startTime;
+	let elapsed = 0;
 	const interval = setInterval(() => {
 		elapsed = Date.now() - startTime;
 	}, 1000);
+
 	const reset = () => {
 		clearInterval(interval);
 	};
 
-	export let data; // the data returned by the `load` function of `./+page.server.ts`
-
-	let loading = true; // sending the data can take a few seconds with slow internet connection
-	let pictureURL; // the generated URL for the preview of the imported file, once the form submitted.
+	export let data;
+	let loading = true;
+	let pictureURL;
 
 	const handleSubmit = (submitData) => {
 		loading = true;
@@ -25,10 +25,6 @@
 		return async ({ result, update }) => {
 			await update();
 			if (result.type === 'success') {
-				// Once the image is uploaded successfully,
-				// we want to show it immediately to the user.
-				// Use an `onChange` event listener on the file input
-				// to handle that as soon as an image is imported if you want a better preview.
 				const file = submitData.formData.get('picture');
 				if (file) {
 					pictureURL = URL.createObjectURL(file);
@@ -40,121 +36,130 @@
 		};
 	};
 
-	// Send the raw data of big pictures can slow down your website.
-	// Therefore, we're only received the Object ID so that we know where to find.
-	// Fetching the data on the client side is great for performance.
-	// Indeed, displaying a loading animation for a big file is no big deal.
 	async function fetchPictureRawData() {
-		const res = await fetch('/api/fetchFile', {
-			method: 'POST',
-			body: JSON.stringify({
-				fileId: data.user.picture
-			})
-		});
+		try {
+			console.log(data.user.picture);
+			const res = await fetch('/api/fetchFile', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ fileId: data.user.picture })
+			});
 
-		if (res.ok) {
-			const { data, type } = await res.json();
-			const fileURL = fileChunksToURL(data, type);
-			pictureURL = fileURL;
+			if (res.ok) {
+				const { data, type } = await res.json();
+				pictureURL = fileChunksToURL(data, type);
+				loading = false;
+				reset();
+				return pictureURL;
+			} else {
+				throw new Error(await res.text());
+			}
+		} catch (error) {
+			console.error('Error fetching picture data:', error);
 			loading = false;
-			reset();
-			return fileURL;
-		} else {
-			throw new Error(await res.text());
 		}
 	}
+
 	async function deletePicture() {
 		loading = true;
 		try {
-			const res = await fetch('/api/deleteFile', {
-				method: 'DELETE'
-			});
+			const res = await fetch('/api/deleteFile', { method: 'DELETE' });
 
 			if (res.ok) {
 				pictureURL = undefined;
 				data.user.picture = undefined;
 			} else {
 				const { error } = await res.json();
-				console.error(error);
+				console.error('Error deleting picture:', error);
 			}
 		} catch (error) {
 			console.error('Error deleting picture:', error);
 		}
 		loading = false;
 	}
+
 	onMount(async () => {
 		try {
 			if (data.user.picture) {
 				await fetchPictureRawData();
 			}
 		} catch (error) {
-			console.error(error);
+			console.error('Error on mount:', error);
 		} finally {
 			loading = false;
 			reset();
 		}
 	});
 </script>
+
 <svelte:head>
 	<title>xayanide - profile</title>
 </svelte:head>
+
 {#if loading}
 	<Loading {elapsed} />
 {:else}
-	<main>
-		You're viewing your profile.
-		<br />
-		<a href="{base}/">Go to Home</a>
-		<br />
-		<a href="{base}/dashboard">Go to Dashboard</a>
-		<p>Email {data.user.email}</p>
-		<div class="container-picture">
+	<main class="p-6 bg-gray-900 text-white min-h-screen max-w-4xl mx-auto">
+		<h1 class="text-3xl mb-4">Your Profile</h1>
+		<p><a href="{base}/" class="text-blue-400 underline">Go to Home</a></p>
+		<p><a href="{base}/dashboard" class="text-blue-400 underline">Go to Dashboard</a></p>
+		<p class="text-lg mb-4">Email: {data.user.email}</p>
+
+		<div class="flex justify-center items-center mb-6">
 			{#if pictureURL}
-				<img src={pictureURL} alt="avatar" />
+				<img
+					src={pictureURL}
+					alt="Profile"
+					class="w-24 h-24 rounded-full border-2 border-gray-600 object-cover"
+				/>
 			{:else if data.user.picture}
-				<img src={pictureURL} alt="avatar" />
+				<img
+					src={pictureURL}
+					alt="Profile"
+					class="w-24 h-24 rounded-full border-2 border-gray-600 object-cover"
+				/>
 			{:else}
-				<span>No picture</span>
+				<span class="text-gray-400 text-xl">No Picture</span>
 			{/if}
 		</div>
-	</main>
-	<hr />
-	<form
-		method="POST"
-		enctype="multipart/form-data"
-		action="/profile?/upload"
-		use:enhance={handleSubmit}
-	>
-		<fieldset>
-			<legend>Upload your profile picture</legend>
-			<input name="picture" type="file" accept="image/png, image/jpeg, image/webp" />
-			<br />
-			<button type="submit" disabled={loading}>{loading ? 'Loading...' : 'Submit'}</button>
-		</fieldset>
-	</form>
-	{#if data.user.picture !== undefined}
-		<button on:click={deletePicture} disabled={loading}
-			>{loading ? 'Loading...' : 'Delete Picture'}</button
+
+		<hr class="my-6 border-gray-700" />
+
+		<form
+			method="POST"
+			enctype="multipart/form-data"
+			action="/profile?/upload"
+			use:enhance={handleSubmit}
+			class="space-y-4"
 		>
-	{/if}
+			<fieldset>
+				<legend class="text-xl mb-2">Upload Your Profile Picture</legend>
+				<input
+					name="picture"
+					type="file"
+					accept="image/png, image/jpeg, image/webp"
+					class="file:border file:border-gray-600 file:bg-gray-800 file:text-white file:rounded file:py-2 file:px-4"
+				/>
+				<button
+					type="submit"
+					class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+					disabled={loading}
+				>
+					{loading ? 'Loading...' : 'Submit'}
+				</button>
+			</fieldset>
+		</form>
+
+		{#if data.user.picture !== undefined}
+			<button
+				on:click={deletePicture}
+				class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+				disabled={loading}
+			>
+				{loading ? 'Loading...' : 'Delete Picture'}
+			</button>
+		{/if}
+	</main>
 {/if}
-
-<style>
-	main .container-picture {
-		border: 1px solid grey;
-		width: 100px;
-		height: 100px;
-		border-radius: 50%;
-		display: flex;
-		overflow: hidden;
-	}
-
-	main .container-picture > span {
-		margin: auto;
-	}
-
-	main img {
-		width: 100%;
-		object-fit: cover;
-	}
-</style>

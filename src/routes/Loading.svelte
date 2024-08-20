@@ -6,7 +6,7 @@
 </script>
 
 <div
-	class="transition-enforcement bg-black min-w-screen min-h-screen flex justify-center items-center font-mono text-2xl text-white *:justify-self-center *:animate-pulse"
+	class="transition-enforcement bg-black min-w-screen min-h-screen flex flex-col justify-center items-center font-mono text-2xl text-white"
 >
 	{#if elapsed > 12000}
 		<p in:fade={{ delay: 250 }} out:fade>(4) something's wrong...</p>
@@ -26,14 +26,40 @@
 	{:else}
 		<p in:fade={{ delay: 100 }} out:fade>(1) please wait...</p>
 	{/if}
+
+	<!-- Rotating Logo -->
+	<div class="logo-container">
+		<img src="{base}/android-chrome-512x512.png" alt="Loading logo" class="loading-logo" />
+	</div>
 </div>
 
 <style>
 	.transition-enforcement {
-		display: grid;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 	}
 	.transition-enforcement > * {
-		grid-column: 1/2;
-		grid-row: 1/2;
+		margin: 0;
+	}
+
+	.logo-container {
+		margin-top: 20px;
+	}
+
+	.loading-logo {
+		width: 50px;
+		height: 50px;
+		animation: rotate 1s linear infinite;
+	}
+
+	@keyframes rotate {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

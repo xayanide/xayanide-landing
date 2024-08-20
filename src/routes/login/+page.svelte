@@ -6,18 +6,20 @@
 	import { onMount } from 'svelte';
 
 	const startTime = Date.now();
-	$: elapsed = Date.now() - startTime;
+	let elapsed = 0;
 	const interval = setInterval(() => {
 		elapsed = Date.now() - startTime;
 	}, 1000);
+
 	const reset = () => {
 		clearInterval(interval);
 	};
-	export let data;
 
+	export let data;
 	let isConnected = false;
 	let loading = true;
 	export let form;
+
 	const handleLogin = () => {
 		loading = true;
 		if (isConnected) {
@@ -25,7 +27,7 @@
 		}
 		loading = false;
 	};
-	// Handle form submission
+
 	const handleSubmit = () => {
 		loading = true;
 		return async ({ result, update }) => {
@@ -46,39 +48,64 @@
 		reset();
 	});
 
-	// Access the VITE_REGISTER_ENABLED environment variable
 	const isRegisterEnabled = import.meta.env.VITE_REGISTER_ENABLED === 'true';
 </script>
+
 <svelte:head>
-	<title>xayanide - auth</title>
+	<title>auth</title>
 </svelte:head>
+
 {#if loading}
 	<Loading {elapsed} />
 {:else if data.userId && !isConnected}
-	<p>You're already logged in!</p>
+	<div class="text-center text-white">
+		<p>You're already logged in!</p>
+	</div>
 {:else}
-	<main>
-		<div>
-			{#if loading}
-				<Loading {elapsed} />
-			{:else}
-				{#if form?.error}
+	<main class="flex items-center justify-center min-h-screen bg-gray-900 text-black">
+		<div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+			{#if form?.error}
+				<div class="mb-4 p-4 bg-red-600 rounded text-white">
 					<p>{form.error}</p>
-				{/if}
-				{#if !isConnected}
-					<p><a href="{base}/">Go to Home</a></p>
-					<br />
-					<form method="POST" use:enhance={handleSubmit}>
-						<input type="email" name="email" placeholder="Email" required />
-						<input type="password" name="password" placeholder="Password" required />
-						<button on:submit={handleLogin} formaction="?/login" disabled={loading}>
-							Log in
+				</div>
+			{/if}
+			{#if !isConnected}
+				<p class="mb-4 text-center">
+					<a href="{base}/" class="text-blue-400 underline">Go to Home</a>
+				</p>
+				<form method="POST" use:enhance={handleSubmit} class="space-y-4">
+					<input
+						type="email"
+						name="email"
+						placeholder="Email"
+						required
+						class="input input-bordered w-full"
+					/>
+					<input
+						type="password"
+						name="password"
+						placeholder="Password"
+						required
+						class="input input-bordered w-full"
+					/>
+					<button
+						formaction="?/login"
+						type="submit"
+						class="text-white btn btn-primary w-full"
+						disabled={loading}
+					>
+						{loading ? 'Logging in...' : 'Log in'}
+					</button>
+					{#if isRegisterEnabled}
+						<button
+							formaction="?/register"
+							class="text-white btn btn-secondary w-full"
+							disabled={loading}
+						>
+							{loading ? 'Registering...' : 'Register'}
 						</button>
-						{#if isRegisterEnabled}
-							<button formaction="?/register" disabled={loading}> Register </button>
-						{/if}
-					</form>
-				{/if}
+					{/if}
+				</form>
 			{/if}
 		</div>
 	</main>
