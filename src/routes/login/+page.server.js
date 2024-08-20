@@ -1,7 +1,7 @@
 import { DATABASE_NAME } from '$env/static/private';
 import { fail } from '@sveltejs/kit';
-import { encryptUserId, hashPassword, validatePassword } from '$db/security';
-import clientPromise from '$db/mongo';
+import { encryptUserId, hashPassword, validatePassword } from '../../db/security';
+import mongoClient from '../../db/mongo';
 import ip from 'ip';
 export const load = async ({ cookies }) => {
 	const userId = cookies.get('userId');
@@ -16,7 +16,7 @@ export const actions = {
 			const data = await request.formData();
 			const email = data.get('email');
 			const password = data.get('password');
-			const client = await clientPromise;
+			const client = await mongoClient;
 			const db = client.db(DATABASE_NAME);
 			const user = await db.collection('users').findOne({ email });
 			if (user === null) {
@@ -46,7 +46,7 @@ export const actions = {
 			const data = await request.formData();
 			const email = data.get('email');
 			const password = data.get('password');
-			const client = await clientPromise;
+			const client = await mongoClient;
 			const db = client.db(DATABASE_NAME);
 			const user = await db.collection('users').findOne({ email });
 			if (user !== null) {

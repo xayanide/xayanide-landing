@@ -15,10 +15,6 @@ export default {
 				experimentalJsonConfig: false,
 				persist: false
 			}
-		}),
-		alias: {
-			$db: './src/db',
-			$lib: './src/lib',
-		},
+		})
 	}
 };

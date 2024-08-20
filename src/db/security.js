@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
 
 /**
  * Hashes the given password.
@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
  * @returns The hash.
  */
 export function hashPassword(password) {
-  return bcrypt.hashSync(password, bcrypt.genSaltSync(8));
+	return bcrypt.hashSync(password, bcrypt.genSaltSync(8));
 }
 
 /**
@@ -16,7 +16,7 @@ export function hashPassword(password) {
  * @returns Whether the password matches the hashed one or not.
  */
 export function validatePassword(plainPassword, hashedPassword) {
-  return bcrypt.compareSync(plainPassword, hashedPassword);
+	return bcrypt.compareSync(plainPassword, hashedPassword);
 }
 
 /**
@@ -27,20 +27,19 @@ export function validatePassword(plainPassword, hashedPassword) {
  * @returns The encrypted user ID.
  */
 export function encryptUserId(userId, ip) {
-  const ipParts = ip.split(".");
-  const y = parseInt(ipParts[ipParts.length - 1]);
+	const ipParts = ip.split('.');
+	const y = parseInt(ipParts[ipParts.length - 1]);
 
-  let encoded = "";
-  for (let i = 0; i < userId.length; i++) {
-    if (!isNaN(userId[i])) {
-      encoded += (parseInt(userId[i]) + y) % 10;
-    } else {
-      encoded += String.fromCharCode(userId[i].charCodeAt(0) + y % 26);
-    }
-  }
-  return encoded;
+	let encoded = '';
+	for (let i = 0; i < userId.length; i++) {
+		if (!isNaN(userId[i])) {
+			encoded += (parseInt(userId[i]) + y) % 10;
+		} else {
+			encoded += String.fromCharCode(userId[i].charCodeAt(0) + (y % 26));
+		}
+	}
+	return encoded;
 }
-
 
 /**
  * Deciphers the encrypted user ID of the "userId" cookie.
@@ -49,19 +48,19 @@ export function encryptUserId(userId, ip) {
  * @return The real object ID of the user used to access his personal data in the database.
  */
 export function decipherUserId(userId, ip) {
-  const ipParts = ip.split(".");
-  const y = parseInt(ipParts[ipParts.length - 1]);
-  let result = "";
-  for (let i = 0; i < userId.length; i++) {
-    if (!isNaN(userId[i])) {
-      let r = parseInt(userId[i]) - y % 10;
-      if (r < 0) {
-        r = 10 + r;
-      }
-      result += r;
-    } else {
-      result += String.fromCharCode(userId[i].charCodeAt(0) - y % 26);
-    }
-  }
-  return result;
+	const ipParts = ip.split('.');
+	const y = parseInt(ipParts[ipParts.length - 1]);
+	let result = '';
+	for (let i = 0; i < userId.length; i++) {
+		if (!isNaN(userId[i])) {
+			let r = parseInt(userId[i]) - (y % 10);
+			if (r < 0) {
+				r = 10 + r;
+			}
+			result += r;
+		} else {
+			result += String.fromCharCode(userId[i].charCodeAt(0) - (y % 26));
+		}
+	}
+	return result;
 }

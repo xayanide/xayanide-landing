@@ -1,6 +1,6 @@
-import { replaceFile, uploadFile } from '$db/gfs';
+import { replaceFile, uploadFile } from '../../db/gfs';
 import { fail } from '@sveltejs/kit';
-import getUser from '$db/getUser';
+import getUser from '../../db/getUser.js';
 
 export const load = async ({ cookies }) => {
 	const { user } = await getUser(cookies);
@@ -12,8 +12,6 @@ export const load = async ({ cookies }) => {
 		}
 	};
 };
-
-
 
 export const actions = {
 	upload: async ({ cookies, request }) => {
@@ -60,5 +58,5 @@ export const actions = {
 				error: 'Could not save the picture to the database.'
 			});
 		}
-	},
+	}
 };

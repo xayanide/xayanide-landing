@@ -11,19 +11,19 @@ import { GridFSBucket, ObjectId } from 'mongodb';
  * @returns {Promise<string>} - A promise that resolves to the Object ID of the document storing the file.
  */
 export async function uploadFile(filename, data, db, options = {}) {
-  const buffer = Buffer.from(new Uint8Array(await data.arrayBuffer()));
-  const bucketName = options.bucketName || 'fs';
-  const gfs = new GridFSBucket(db, { bucketName });
+	const buffer = Buffer.from(new Uint8Array(await data.arrayBuffer()));
+	const bucketName = options.bucketName || 'fs';
+	const gfs = new GridFSBucket(db, { bucketName });
 
-  return new Promise((resolve, reject) => {
-    const uploadStream = gfs.openUploadStream(filename, { metadata: options.metadata });
+	return new Promise((resolve, reject) => {
+		const uploadStream = gfs.openUploadStream(filename, { metadata: options.metadata });
 
-    uploadStream.on('error', reject);
-    uploadStream.on('finish', () => resolve(uploadStream.id.toString()));
+		uploadStream.on('error', reject);
+		uploadStream.on('finish', () => resolve(uploadStream.id.toString()));
 
-    uploadStream.write(buffer);
-    uploadStream.end();
-  });
+		uploadStream.write(buffer);
+		uploadStream.end();
+	});
 }
 
 /**
@@ -34,17 +34,17 @@ export async function uploadFile(filename, data, db, options = {}) {
  * @returns {Promise<Buffer[]>} - A promise that resolves to an array of buffers containing the file chunks.
  */
 export async function downloadFile(fileId, db, bucketName = 'fs') {
-  const gfs = new GridFSBucket(db, { bucketName });
-  const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
+	const gfs = new GridFSBucket(db, { bucketName });
+	const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
 
-  return new Promise((resolve, reject) => {
-    const downloadStream = gfs.openDownloadStream(objectId);
-    const chunks = [];
+	return new Promise((resolve, reject) => {
+		const downloadStream = gfs.openDownloadStream(objectId);
+		const chunks = [];
 
-    downloadStream.on('data', chunk => chunks.push(chunk));
-    downloadStream.on('end', () => resolve(chunks));
-    downloadStream.on('error', reject);
-  });
+		downloadStream.on('data', (chunk) => chunks.push(chunk));
+		downloadStream.on('end', () => resolve(chunks));
+		downloadStream.on('error', reject);
+	});
 }
 
 /**
@@ -56,9 +56,9 @@ export async function downloadFile(fileId, db, bucketName = 'fs') {
  * @returns {Promise<object[]>} - A promise that resolves to an array of file metadata documents.
  */
 export async function findUploadedFile(filter = {}, db, options = {}, bucketName = 'fs') {
-  const gfs = new GridFSBucket(db, { bucketName });
-  const cursor = gfs.find(filter, options);
-  return cursor.toArray();
+	const gfs = new GridFSBucket(db, { bucketName });
+	const cursor = gfs.find(filter, options);
+	return cursor.toArray();
 }
 
 /**
@@ -69,9 +69,9 @@ export async function findUploadedFile(filter = {}, db, options = {}, bucketName
  * @returns {Promise<void>}
  */
 export async function deleteFile(fileId, db, bucketName = 'fs') {
-  const gfs = new GridFSBucket(db, { bucketName });
-  const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
-  await gfs.delete(objectId);
+	const gfs = new GridFSBucket(db, { bucketName });
+	const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
+	await gfs.delete(objectId);
 }
 
 /**
@@ -84,8 +84,8 @@ export async function deleteFile(fileId, db, bucketName = 'fs') {
  * @returns {Promise<string>} - A promise that resolves to the Object ID of the new file.
  */
 export async function replaceFile(fileId, filename, data, db, options = {}) {
-  await deleteFile(fileId, db, options.bucketName);
-  return uploadFile(filename, data, db, options);
+	await deleteFile(fileId, db, options.bucketName);
+	return uploadFile(filename, data, db, options);
 }
 
 /**
@@ -97,9 +97,9 @@ export async function replaceFile(fileId, filename, data, db, options = {}) {
  * @returns {Promise<void>}
  */
 export async function renameFile(fileId, newName, db, bucketName = 'fs') {
-  const gfs = new GridFSBucket(db, { bucketName });
-  const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
-  await gfs.rename(objectId, newName);
+	const gfs = new GridFSBucket(db, { bucketName });
+	const objectId = typeof fileId === 'string' ? ObjectId.createFromHexString(fileId) : fileId;
+	await gfs.rename(objectId, newName);
 }
 
 /**
@@ -109,6 +109,6 @@ export async function renameFile(fileId, newName, db, bucketName = 'fs') {
  * @returns {Promise<void>}
  */
 export async function deleteBucket(bucketName, db) {
-  const gfs = new GridFSBucket(db, { bucketName });
-  await gfs.drop();
+	const gfs = new GridFSBucket(db, { bucketName });
+	await gfs.drop();
 }

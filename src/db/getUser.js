@@ -1,9 +1,9 @@
 import { ObjectId } from 'mongodb';
 import { DATABASE_NAME } from '$env/static/private';
-import { decipherUserId } from '$db/security';
+import { decipherUserId } from '../db/security';
 import { error } from '@sveltejs/kit';
-import clientPromise from '$db/mongo';
-import logOutUser from './logOutUser';
+import mongoClient from '../db/mongo';
+import logoutUser from '../db/logoutUser';
 import ip from 'ip';
 
 /**
@@ -21,7 +21,7 @@ export default async function getUser(cookies, database) {
 		throw error(401, 'Unauthorized');
 	}
 	const decipheredUserId = decipherUserId(userId, ip.address());
-	const db = database ?? (await clientPromise).db(DATABASE_NAME);
+	const db = database ?? (await mongoClient).db(DATABASE_NAME);
 	let objectId;
 	try {
 		// If the user IP address is not the same as when he first logged in, he must be disconnected.
@@ -29,7 +29,7 @@ export default async function getUser(cookies, database) {
 		// It is very unlikely that the deciphered userId happens to be the exact ID of another user, so it's neglected.
 		objectId = ObjectId.createFromHexString(decipheredUserId);
 	} catch (e) {
-		logOutUser(cookies);
+		logoutUser(cookies);
 		throw error(400, 'Invalid session.');
 	}
 	const user = await db.collection('users').findOne({ _id: objectId });
@@ -37,7 +37,7 @@ export default async function getUser(cookies, database) {
 	// because it could be removed from the database in between.
 	// This happens when the user deletes his account on another session for example.
 	if (user === null) {
-		logOutUser(cookies);
+		logoutUser(cookies);
 		throw error(400, "Bad request or the user doesn't exist.");
 	}
 	return {

@@ -6,5 +6,10 @@
  * @returns A URL leading to the image.
  */
 export default function fileChunksToURL(chunks, type) {
-  return URL.createObjectURL(new Blob(chunks.map(p => new Uint8Array(p.data)), { type }));
+	return URL.createObjectURL(
+		new Blob(
+			chunks.map((p) => new Uint8Array(p.data)),
+			{ type }
+		)
+	);
 }
